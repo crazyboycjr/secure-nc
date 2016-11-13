@@ -4,6 +4,10 @@
 
 cbc
 main
+gen-key
+
+rsa
+rsa.pub
 
 # Qt temporary files
 moc_*.cc

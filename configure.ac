@@ -14,8 +14,16 @@ AM_PROG_AR
 
 # Checks for libraries.
 AC_PROG_RANLIB
+AC_CHECK_LIB(gmp, __gmpz_init, ,
+		[AC_MSG_ERROR([GNU MP not found, see https://gmplib.org/])])
+AC_CHECK_LIB(gmpxx, __gmpz_init, ,
+		[AC_MSG_ERROR([GNU MP not found, see https://gmplib.org/])])
 
 # Checks for header files.
+AC_CHECK_HEADERS([gmpxx.h], AC_MSG_ERROR([GNU MP not found, see https://gmplib.org/]))
+
+# Checks for compile flags.
+AX_CHECK_COMPILE_FLAG([-std=c++14], [CXXFLAGS="$CXXFLAGS -std=c++14"])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
