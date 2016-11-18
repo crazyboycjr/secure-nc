@@ -11,6 +11,8 @@ id_rsa.pub
 
 snc
 
+snc
+
 # Qt temporary files
 moc_*.cc
 ui_*.h
