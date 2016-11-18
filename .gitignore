@@ -6,8 +6,8 @@ cbc
 main
 gen-key
 
-rsa
-rsa.pub
+id_rsa
+id_rsa.pub
 
 # Qt temporary files
 moc_*.cc

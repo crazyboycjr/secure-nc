@@ -75,43 +75,6 @@ T ex_gcd(const T &a, const T &b, T &x, T &y) {
 	return d;
 }
 
-void writeU8(FILE *fp, u8 u) {
-	fwrite(&u, 1, 1, fp);
-}
-
-void writeU32(FILE *fp, u32 d) {
-	d = __builtin_bswap32(d);
-	fwrite(&d, 4, 1, fp);
-}
-
-#include <vector>
-void writeBigInt(FILE *fp, mpz_class a) {
-	vector<u8> v;
-	while (a != 0) {
-		v.push_back((u8)((mpz_class)(a % 256)).get_si());
-		a >>= 8;
-	}
-	writeU32(fp, (u32)v.size());
-	for (ssize_t i = v.size() - 1; i >= 0; i--) {
-		writeU8(fp, v[i]);
-	}
-}
-
-void writeString(FILE *fp, const string &s) {
-	writeU32(fp, (u32)s.length());
-	for (auto c : s) {
-		writeU8(fp, (u8)c);
-	}
-}
-
-void writeFile(const string &filename, const mpz_class &a, const mpz_class &n) {
-	FILE *fp = fopen(filename.c_str(), "wb");
-	writeString(fp, "cjr-rsa");
-	writeBigInt(fp, a);
-	writeBigInt(fp, n);
-	fclose(fp);
-}
-
 int genkeyRSA(int nbits, const string &pubname, const string &priname) {
 	if (!(nbits >= 64 && nbits <= 4096 && nbits == (nbits & -nbits))) {
 		printf("Not support for %d\n bits key", nbits);
