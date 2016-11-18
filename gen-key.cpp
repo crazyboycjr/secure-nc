@@ -106,6 +106,11 @@ int genkeyRSA(int nbits, const string &pubname, const string &priname) {
 	return 0;
 }
 
+u64 genDESKey()
+{
+	return (u64)rand() << 31 + rand();
+}
+
 //__attribute__ ((visibility(".hidden")))
 static void test() {
 	assert(millerRabin(99991l));
@@ -133,6 +138,7 @@ static void test() {
 }
 
 int main() {
+	srand(unsigned(time(0)));
 	test();
 	return 0;
 }

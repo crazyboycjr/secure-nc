@@ -15,7 +15,13 @@ public:
 	int readPub(const string &pathname = "id_rsa.pub");
 	int readPri(const string &pathname = "id_rsa");
 	void writeFile(const string &filename, const mpz_class &a, const mpz_class &n);
+	string rsaEncrypt(const string &text);
+	string rsaDecrypt(const string &text);
 private:
+	string rsaTransform(const string &text, const mpz_class &k);
+	string bigInt2Str(mpz_class a, int len);
+	string format(const string &text);
+	string deformat(const string &text);
 	void readString(FILE *fp, string &str);
 	void readBigInt(FILE *fp, mpz_class &a);
 	void writeBigInt(FILE *fp, mpz_class a);

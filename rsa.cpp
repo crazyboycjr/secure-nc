@@ -8,6 +8,8 @@
 
 using namespace std;
 
+#define BLKSZ (128 / 8)
+
 string RSA::readFile2Str(const string &pathname)
 {
 #define BUFLEN 1024
@@ -26,6 +28,7 @@ string RSA::readFile2Str(const string &pathname)
 		exit(-1);
 	}
 
+	fclose(fp);
 	return ret;
 }
 
@@ -38,6 +41,23 @@ void RSA::writeU32(FILE *fp, u32 d)
 {
 	d = __builtin_bswap32(d);
 	fwrite(&d, 4, 1, fp);
+}
+
+string RSA::bigInt2Str(mpz_class a, int len)
+{
+	string ret;
+	vector<u8> v;
+	while (a != 0) {
+		v.push_back((u8)((mpz_class)(a % 256)).get_si());
+		a >>= 8;
+	}
+	for (ssize_t i = v.size() - 1; i >= 0; i--) {
+		ret.push_back(v[i]);
+	}
+	assert(v.size() <= (size_t)len);
+	for (ssize_t i = v.size(); i < len; i++)
+		ret.push_back((u8)0x00);
+	return ret;
 }
 
 void RSA::writeBigInt(FILE *fp, mpz_class a)
@@ -74,6 +94,7 @@ void RSA::saveFile(const string &pathname, const string &str)
 {
 	FILE *fp = fopen(pathname.c_str(), "wb");
 	writeString(fp, str);
+	fclose(fp);
 }
 
 void RSA::readString(FILE *fp, string &str)
@@ -126,8 +147,46 @@ int RSA::readPri(const string &pathname) {
 	return ret;
 }
 
-string rsaEncrypt(const string &plain, const mpz_class &e, const mpz_class &n) {
-	return "";
+string RSA::rsaTransform(const string &text, const mpz_class &k)
+{
+	string ret;
+	assert(text.length() % BLKSZ == 0);
+	for (size_t i = 0; i < text.length(); i += BLKSZ) {
+		mpz_class m = mpz_class(string(text.c_str() + i, BLKSZ));
+		mpz_class c = power(m, k, n);
+		ret += bigInt2Str(c, BLKSZ);
+	}
+	return ret;
 }
+
+string RSA::format(const string &text)
+{
+	string ret;
+	u64 len = text.length();
+	ret += string((char *)&ret, 8);
+	len += 8;
+	ret += text;
+	len = BLKSZ - len % BLKSZ;
+	while (len--)
+		ret.push_back((u8)0x00);
+	return ret;
+}
+
+string RSA::deformat(const string &text)
+{
+	u64 len = *(u64 *)text.c_str();
+	return string(text.c_str() + 8, len);
+}
+
+string RSA::rsaEncrypt(const string &plain)
+{
+	return rsaTransform(format(plain), e);
+}
+
+string RSA::rsaDecrypt(const string &ciper)
+{
+	return deformat(rsaTransform(ciper, d));
+}
+
 
 class RSA RSA;

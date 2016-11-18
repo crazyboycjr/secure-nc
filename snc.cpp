@@ -6,31 +6,55 @@
 
 extern class RSA RSA;
 
+u64 genDESKey();
+
 void serverMainloop(TCPServer &server)
 {
 	server.accept();
+	/* xchg public key */
+	string msg = server.recv();
+	RSA.saveFile("peer.pub", msg);
+	RSA.readPub("peer.pub");
+	msg = RSA.readFile2Str("rsa.pub");
+	server.send(msg);
+
+	/* recv des key */
+	u64 desKey = 0;
+	msg = server.recv();
+	desKey = *(u64 *)RSA.rsaDecrypt(msg).c_str();
+
 	for (;;) {
-		string msg = server.recv();
-		cout << msg;
-		cout.flush();
 		getline(cin ,msg);
-		server.send(msg);
+		server.send(RSA.rsaEncrypt(msg));
+		msg = server.recv();
+		cout << msg;
+		cout << RSA.rsaDecrypt(msg);
+		cout.flush();
 	}
 }
 
 void clientMainloop(TCPClient &client)
 {
+	/* xchg public key*/
 	string msg;
 	msg = RSA.readFile2Str("rsa.pub");
 	client.send(msg);
 	msg = client.recv();
 	RSA.saveFile("peer.pub", msg);
+	RSA.readPub("peer.pub");
+
+	/* send des key */
+	u64 desKey = genDESKey();
+	msg = string((char *)&desKey, 8);
+	client.send(RSA.rsaEncrypt(msg));
 
 	for (;;) {
-		getline(cin, msg);
-		client.send(msg);
-		cout << client.recv();
+		msg = client.recv();
+		cout << msg;
+		cout << RSA.rsaDecrypt(msg);
 		cout.flush();
+		getline(cin, msg);
+		client.send(RSA.rsaEncrypt(msg));
 	}
 }
 
