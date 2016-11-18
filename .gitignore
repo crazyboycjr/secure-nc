@@ -9,6 +9,8 @@ gen-key
 rsa
 rsa.pub
 
+snc
+
 # Qt temporary files
 moc_*.cc
 ui_*.h
