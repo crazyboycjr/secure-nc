@@ -136,6 +136,8 @@ int genkeyRSA(int nbits, const string &pubname, const string &priname) {
 
 	writeFile(pubname, e, n);
 	writeFile(priname, d, n);
+
+	return 0;
 }
 
 //__attribute__ ((visibility(".hidden")))
@@ -161,7 +163,7 @@ static void test() {
 	assert(millerRabin(genPrimeBits(64)));
 	assert(millerRabin(genStrongPrimeBits(64)));
 
-	genkeyRSA(128, "rsa.pub", "rsa");
+	genkeyRSA(128, "id_rsa.pub", "id_rsa");
 }
 
 int main() {
