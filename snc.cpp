@@ -1,9 +1,10 @@
 #include "common.h"
 #include "network.h"
+#include "rsa.h"
 
 #include <iostream>
 
-class RSA RSA;
+extern class RSA RSA;
 
 void serverMainloop(TCPServer &server)
 {

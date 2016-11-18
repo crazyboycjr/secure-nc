@@ -1,8 +1,11 @@
 #include "common.h"
+#include "rsa.h"
 
 #include <gmpxx.h>
 
 using namespace std;
+
+extern class RSA RSA;
 
 template<typename T>
 T power(T a, T n, const T &p) {
@@ -47,7 +50,7 @@ mpz_class genPrimeBits(int nbits) {
 
 bool chkStrongPrime(mpz_class p) {
 	/* TODO */
-	return false;
+	return true;
 }
 
 mpz_class genStrongPrimeBits(int nbits) {
@@ -55,7 +58,7 @@ mpz_class genStrongPrimeBits(int nbits) {
 
 	do {
 		p = genPrimeBits(nbits);
-	} while (chkStrongPrime(p));
+	} while (!chkStrongPrime(p));
 
 	return p;
 }
@@ -97,8 +100,8 @@ int genkeyRSA(int nbits, const string &pubname, const string &priname) {
 	trace(e, d, n, r);
 	assert(d * e % r == 1);
 
-	writeFile(pubname, e, n);
-	writeFile(priname, d, n);
+	RSA.writeFile(pubname, e, n);
+	RSA.writeFile(priname, d, n);
 
 	return 0;
 }
