@@ -10,6 +10,17 @@ using namespace std;
 
 #define BLKSZ (128 / 8)
 
+template<typename T>
+T power(T a, T n, const T &p) {
+	T t = 1;
+	/* n >>= 1 may cause problems */
+	for (; n; n >>= 1) {
+		if ((n & 1) == 1) t = t * a % p;
+		a = a * a % p;
+	}
+	return t;
+}
+
 string RSA::readFile2Str(const string &pathname)
 {
 #define BUFLEN 1024
@@ -19,8 +30,10 @@ string RSA::readFile2Str(const string &pathname)
 	FILE *fp = fopen(pathname.c_str(), "rb");
 	string ret;
 
-	while ((n = fread(buf, BUFLEN, 1, fp)) > 0) {
+	while ((n = fread(buf, 1, BUFLEN, fp)) > 0) {
 		ret += string(buf, n);
+		if (n < BUFLEN || (n == BUFLEN && buf[BUFLEN - 1] == '\0'))
+			break;
 	}
 
 	if (n < 0) {
@@ -60,6 +73,16 @@ string RSA::bigInt2Str(mpz_class a, int len)
 	return ret;
 }
 
+mpz_class RSA::str2BigInt(const string &str)
+{
+	size_t len = str.length();
+	mpz_class ret = 0;
+	for (const auto &c : str) {
+		ret = (ret << 8) + (u8)c;
+	}
+	return ret;
+}
+
 void RSA::writeBigInt(FILE *fp, mpz_class a)
 {
 	vector<u8> v;
@@ -93,7 +116,9 @@ void RSA::writeFile(const string &filename, const mpz_class &a, const mpz_class 
 void RSA::saveFile(const string &pathname, const string &str)
 {
 	FILE *fp = fopen(pathname.c_str(), "wb");
-	writeString(fp, str);
+	for (auto c : str) {
+		writeU8(fp, (u8)c);
+	}
 	fclose(fp);
 }
 
@@ -123,11 +148,12 @@ void RSA::readBigInt(FILE *fp, mpz_class &a)
 
 int RSA::readFile(const string &pathname, mpz_class &a, mpz_class &n)
 {
-	FILE *fp = fopen(pathname.c_str(), "wb");
+	FILE *fp = fopen(pathname.c_str(), "rb");
 	string _str;
 	readString(fp, _str);
 	readBigInt(fp, a);
 	readBigInt(fp, n);
+	fclose(fp);
 	return 0;
 }
 
@@ -150,9 +176,10 @@ int RSA::readPri(const string &pathname) {
 string RSA::rsaTransform(const string &text, const mpz_class &k)
 {
 	string ret;
+	trace(text.length());
 	assert(text.length() % BLKSZ == 0);
 	for (size_t i = 0; i < text.length(); i += BLKSZ) {
-		mpz_class m = mpz_class(string(text.c_str() + i, BLKSZ));
+		mpz_class m = str2BigInt(string(text.c_str() + i, BLKSZ));
 		mpz_class c = power(m, k, n);
 		ret += bigInt2Str(c, BLKSZ);
 	}
@@ -163,10 +190,12 @@ string RSA::format(const string &text)
 {
 	string ret;
 	u64 len = text.length();
-	ret += string((char *)&ret, 8);
+	ret += string((char *)&len, 8);
 	len += 8;
 	ret += text;
 	len = BLKSZ - len % BLKSZ;
+	if (len == BLKSZ)
+		len = 0;
 	while (len--)
 		ret.push_back((u8)0x00);
 	return ret;
@@ -185,6 +214,7 @@ string RSA::rsaEncrypt(const string &plain)
 
 string RSA::rsaDecrypt(const string &ciper)
 {
+	trace(ciper.length());
 	return deformat(rsaTransform(ciper, d));
 }
 

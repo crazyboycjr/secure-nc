@@ -6,7 +6,7 @@
 
 extern class RSA RSA;
 
-u64 genDESKey();
+//u64 genDESKey();
 
 void serverMainloop(TCPServer &server)
 {
@@ -15,8 +15,10 @@ void serverMainloop(TCPServer &server)
 	string msg = server.recv();
 	RSA.saveFile("peer.pub", msg);
 	RSA.readPub("peer.pub");
-	msg = RSA.readFile2Str("rsa.pub");
+	msg = RSA.readFile2Str("id_rsa.pub");
 	server.send(msg);
+
+	RSA.readPri("id_rsa");
 
 	/* recv des key */
 	u64 desKey = 0;
@@ -25,6 +27,7 @@ void serverMainloop(TCPServer &server)
 
 	for (;;) {
 		getline(cin ,msg);
+		trace(msg.length());
 		server.send(RSA.rsaEncrypt(msg));
 		msg = server.recv();
 		cout << msg;
@@ -37,19 +40,24 @@ void clientMainloop(TCPClient &client)
 {
 	/* xchg public key*/
 	string msg;
-	msg = RSA.readFile2Str("rsa.pub");
+	msg = RSA.readFile2Str("id_rsa.pub");
 	client.send(msg);
 	msg = client.recv();
 	RSA.saveFile("peer.pub", msg);
 	RSA.readPub("peer.pub");
 
+	RSA.readPri("id_rsa");
+
 	/* send des key */
-	u64 desKey = genDESKey();
+	u64 desKey = 0x3030303031313131;//genDESKey();
 	msg = string((char *)&desKey, 8);
+	string tmp = RSA.rsaEncrypt(msg);
+	trace(tmp.length());
 	client.send(RSA.rsaEncrypt(msg));
 
 	for (;;) {
 		msg = client.recv();
+		trace(msg);
 		cout << msg;
 		cout << RSA.rsaDecrypt(msg);
 		cout.flush();

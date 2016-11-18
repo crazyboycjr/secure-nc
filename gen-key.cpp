@@ -18,6 +18,22 @@ T power(T a, T n, const T &p) {
 	return t;
 }
 
+
+template<typename T>
+T ex_gcd(const T &a, const T &b, T &x, T &y) {
+	if (b == 0) {
+		x = 1;
+		y = 0;
+		return a;
+	}
+	T c = a % b;
+	T d = ex_gcd(b, (T)(a % b), x, y);
+	T t = x;
+	x = y;
+	y = t - a / b * y;
+	return d;
+}
+
 template<typename T>
 bool testPrime(const T &p, const T &a) {
 	T m = p - 1, t;
@@ -36,6 +52,8 @@ bool millerRabin(const T &x) {
 	}
 	return true;
 }
+
+
 
 mpz_class genPrimeBits(int nbits) {
 	mpz_class p;
@@ -61,21 +79,6 @@ mpz_class genStrongPrimeBits(int nbits) {
 	} while (!chkStrongPrime(p));
 
 	return p;
-}
-
-template<typename T>
-T ex_gcd(const T &a, const T &b, T &x, T &y) {
-	if (b == 0) {
-		x = 1;
-		y = 0;
-		return a;
-	}
-	T c = a % b;
-	T d = ex_gcd(b, (T)(a % b), x, y);
-	T t = x;
-	x = y;
-	y = t - a / b * y;
-	return d;
 }
 
 int genkeyRSA(int nbits, const string &pubname, const string &priname) {
@@ -108,7 +111,7 @@ int genkeyRSA(int nbits, const string &pubname, const string &priname) {
 
 u64 genDESKey()
 {
-	return (u64)rand() << 31 + rand();
+	return ((u64)rand() << 31) + rand();
 }
 
 //__attribute__ ((visibility(".hidden")))
@@ -138,7 +141,7 @@ static void test() {
 }
 
 int main() {
-	srand(unsigned(time(0)));
+	srand(unsigned(time(0)) + size_t(main));
 	test();
 	return 0;
 }

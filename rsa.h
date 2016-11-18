@@ -19,6 +19,7 @@ public:
 	string rsaDecrypt(const string &text);
 private:
 	string rsaTransform(const string &text, const mpz_class &k);
+	mpz_class str2BigInt(const string &str);
 	string bigInt2Str(mpz_class a, int len);
 	string format(const string &text);
 	string deformat(const string &text);
