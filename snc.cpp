@@ -23,7 +23,9 @@ void serverMainloop(TCPServer &server)
 	/* recv des key */
 	u64 desKey = 0;
 	msg = server.recv();
+	dispstr(msg);
 	desKey = *(u64 *)RSA.rsaDecrypt(msg).c_str();
+	trace(desKey);
 
 	for (;;) {
 		getline(cin ,msg);
@@ -51,13 +53,14 @@ void clientMainloop(TCPClient &client)
 	/* send des key */
 	u64 desKey = 0x3030303031313131;//genDESKey();
 	msg = string((char *)&desKey, 8);
+	dispstr(msg);
 	string tmp = RSA.rsaEncrypt(msg);
-	trace(tmp.length());
+	dispstr(tmp);
 	client.send(RSA.rsaEncrypt(msg));
 
 	for (;;) {
 		msg = client.recv();
-		trace(msg);
+		trace(msg.length());
 		cout << msg;
 		cout << RSA.rsaDecrypt(msg);
 		cout.flush();

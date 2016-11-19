@@ -8,14 +8,9 @@ gen-key
 
 id_rsa
 id_rsa.pub
+peer.pub
 
 snc
-
-snc
-
-# Qt temporary files
-moc_*.cc
-ui_*.h
 
 # Object files
 *.o

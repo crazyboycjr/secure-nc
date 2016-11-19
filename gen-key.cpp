@@ -53,15 +53,18 @@ bool millerRabin(const T &x) {
 	return true;
 }
 
+gmp_randclass gmp_rand(gmp_randinit_default);
 
+static void randSeedInit()
+{
+	gmp_rand.seed((unsigned)time(0) + (long)&gmp_rand);
+}
 
 mpz_class genPrimeBits(int nbits) {
 	mpz_class p;
-	gmp_randclass r(gmp_randinit_default);
-	r.seed((long)&r);
 
 	do {
-		p = r.get_z_bits(nbits);
+		p = gmp_rand.get_z_bits(nbits);
 	} while (!millerRabin(p));
 	return p;
 }
@@ -95,6 +98,10 @@ int genkeyRSA(int nbits, const string &pubname, const string &priname) {
 		r = (p - 1) * (q - 1);
 	} while (r % e == 0);
 	n = p * q;
+
+	trace(p);
+	trace(q);
+	trace(r);
 
 	mpz_class t;
 	assert(1 == ex_gcd(e, r, d, t));
@@ -142,6 +149,7 @@ static void test() {
 
 int main() {
 	srand(unsigned(time(0)) + size_t(main));
+	randSeedInit();
 	test();
 	return 0;
 }

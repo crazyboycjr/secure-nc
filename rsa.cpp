@@ -204,6 +204,8 @@ string RSA::format(const string &text)
 string RSA::deformat(const string &text)
 {
 	u64 len = *(u64 *)text.c_str();
+	dispstr(text);
+	assert(text.length() >= 8);
 	return string(text.c_str() + 8, len);
 }
 
