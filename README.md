@@ -2,8 +2,8 @@
 simple netcat base on DES which encrypt its secret with RSA......
 
 ## Dependency
-- gmp
-- gmpxx
+- libgmp
+- libgmpxx
 
 ## Compile
 Firstly, you should execute
@@ -33,7 +33,10 @@ Then open two terminal and type respectively
 Then you can take turns to send messages.
 
 ## TODO
-- <addr> only support ipv4 address
+- Only support ipv4 address
 - Communication must take turns
 - Saving format and permission of RSA pubkey and prikey
 - Many other things
+
+---
+虽说是snc，但名不副实，说是simple，这东西连simple都算不上，说secure它又不怎么secure...
