@@ -1,12 +1,11 @@
 #include "common.h"
 #include "network.h"
 #include "rsa.h"
+#include "des.h"
 
 #include <iostream>
 
 extern class RSA RSA;
-
-//u64 genDESKey();
 
 void serverMainloop(TCPServer &server)
 {
@@ -29,10 +28,9 @@ void serverMainloop(TCPServer &server)
 
 	for (;;) {
 		getline(cin ,msg);
-		trace(msg.length());
 		server.send(RSA.rsaEncrypt(msg));
 		msg = server.recv();
-		cout << msg;
+		dispstr(msg);
 		cout << RSA.rsaDecrypt(msg);
 		cout.flush();
 	}
@@ -51,17 +49,16 @@ void clientMainloop(TCPClient &client)
 	RSA.readPri("id_rsa");
 
 	/* send des key */
-	u64 desKey = 0x3030303031313131;//genDESKey();
+	u64 desKey = randomDESKey();
 	msg = string((char *)&desKey, 8);
 	dispstr(msg);
-	string tmp = RSA.rsaEncrypt(msg);
-	dispstr(tmp);
+	string enMsg = RSA.rsaEncrypt(msg);
+	dispstr(enMsg);
 	client.send(RSA.rsaEncrypt(msg));
 
 	for (;;) {
 		msg = client.recv();
-		trace(msg.length());
-		cout << msg;
+		dispstr(msg);
 		cout << RSA.rsaDecrypt(msg);
 		cout.flush();
 		getline(cin, msg);

@@ -176,7 +176,6 @@ int RSA::readPri(const string &pathname) {
 string RSA::rsaTransform(const string &text, const mpz_class &k)
 {
 	string ret;
-	trace(text.length());
 	assert(text.length() % BLKSZ == 0);
 	for (size_t i = 0; i < text.length(); i += BLKSZ) {
 		mpz_class m = str2BigInt(string(text.c_str() + i, BLKSZ));
@@ -204,7 +203,6 @@ string RSA::format(const string &text)
 string RSA::deformat(const string &text)
 {
 	u64 len = *(u64 *)text.c_str();
-	dispstr(text);
 	assert(text.length() >= 8);
 	return string(text.c_str() + 8, len);
 }
@@ -216,7 +214,6 @@ string RSA::rsaEncrypt(const string &plain)
 
 string RSA::rsaDecrypt(const string &ciper)
 {
-	trace(ciper.length());
 	return deformat(rsaTransform(ciper, d));
 }
 

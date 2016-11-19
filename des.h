@@ -132,3 +132,6 @@ const u64 shift[] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
 
 u64 des(u64, u64, int = 1);
 void genkey(u64);
+u64 randomDESKey();
+void encrypt(string ifile, string ofile, u64 key, u64 iv);
+void decrypt(string ifile, string ofile, u64 key, u64 iv);

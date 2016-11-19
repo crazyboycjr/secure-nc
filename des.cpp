@@ -1,5 +1,6 @@
 #include "common.h"
 #include "des.h"
+#include <ctime>
 
 u64 K[NR];
 
@@ -55,6 +56,17 @@ u64 des(u64 in, u64 key, int type) {
 	out = subst(out, FP, 64);
 	return out;
 }
+
+u64 randomDESKey()
+{
+	static bool vis = false;
+	if (!vis) {
+		srand(unsigned(time(0)) + (size_t)&vis);
+		vis = true;
+	}
+	return ((u64)rand() << 31) + rand();
+}
+
 /*
 int main() {
 	u64 res = des(1, 1);

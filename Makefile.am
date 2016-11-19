@@ -18,6 +18,7 @@ snc_SOURCES = rsa.h \
 			  network.h \
 			  network.cpp \
 			  common.h
+snc_LDADD = $(top_srcdir)/libdes-cbc.a
 
 #noinst_PROGRAMS=cbc
 #cbc_SOURCES=cbc.cpp des.cpp des.h
