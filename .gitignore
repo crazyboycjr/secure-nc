@@ -6,12 +6,11 @@ cbc
 main
 gen-key
 
-rsa
-rsa.pub
+id_rsa
+id_rsa.pub
+peer.pub
 
-# Qt temporary files
-moc_*.cc
-ui_*.h
+snc
 
 # Object files
 *.o

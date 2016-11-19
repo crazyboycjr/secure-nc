@@ -1,8 +1,11 @@
 #include "common.h"
+#include "rsa.h"
 
 #include <gmpxx.h>
 
 using namespace std;
+
+extern class RSA RSA;
 
 template<typename T>
 T power(T a, T n, const T &p) {
@@ -13,6 +16,22 @@ T power(T a, T n, const T &p) {
 		a = a * a % p;
 	}
 	return t;
+}
+
+
+template<typename T>
+T ex_gcd(const T &a, const T &b, T &x, T &y) {
+	if (b == 0) {
+		x = 1;
+		y = 0;
+		return a;
+	}
+	T c = a % b;
+	T d = ex_gcd(b, (T)(a % b), x, y);
+	T t = x;
+	x = y;
+	y = t - a / b * y;
+	return d;
 }
 
 template<typename T>
@@ -34,20 +53,25 @@ bool millerRabin(const T &x) {
 	return true;
 }
 
+gmp_randclass gmp_rand(gmp_randinit_default);
+
+static void randSeedInit()
+{
+	gmp_rand.seed((unsigned)time(0) + (long)&gmp_rand);
+}
+
 mpz_class genPrimeBits(int nbits) {
 	mpz_class p;
-	gmp_randclass r(gmp_randinit_default);
-	r.seed((long)&r);
 
 	do {
-		p = r.get_z_bits(nbits);
+		p = gmp_rand.get_z_bits(nbits);
 	} while (!millerRabin(p));
 	return p;
 }
 
 bool chkStrongPrime(mpz_class p) {
 	/* TODO */
-	return false;
+	return true;
 }
 
 mpz_class genStrongPrimeBits(int nbits) {
@@ -55,61 +79,9 @@ mpz_class genStrongPrimeBits(int nbits) {
 
 	do {
 		p = genPrimeBits(nbits);
-	} while (chkStrongPrime(p));
+	} while (!chkStrongPrime(p));
 
 	return p;
-}
-
-template<typename T>
-T ex_gcd(const T &a, const T &b, T &x, T &y) {
-	if (b == 0) {
-		x = 1;
-		y = 0;
-		return a;
-	}
-	T c = a % b;
-	T d = ex_gcd(b, (T)(a % b), x, y);
-	T t = x;
-	x = y;
-	y = t - a / b * y;
-	return d;
-}
-
-void writeU8(FILE *fp, u8 u) {
-	fwrite(&u, 1, 1, fp);
-}
-
-void writeU32(FILE *fp, u32 d) {
-	d = __builtin_bswap32(d);
-	fwrite(&d, 4, 1, fp);
-}
-
-#include <vector>
-void writeBigInt(FILE *fp, mpz_class a) {
-	vector<u8> v;
-	while (a != 0) {
-		v.push_back((u8)((mpz_class)(a % 256)).get_si());
-		a >>= 8;
-	}
-	writeU32(fp, (u32)v.size());
-	for (ssize_t i = v.size() - 1; i >= 0; i--) {
-		writeU8(fp, v[i]);
-	}
-}
-
-void writeString(FILE *fp, const string &s) {
-	writeU32(fp, (u32)s.length());
-	for (auto c : s) {
-		writeU8(fp, (u8)c);
-	}
-}
-
-void writeFile(const string &filename, const mpz_class &a, const mpz_class &n) {
-	FILE *fp = fopen(filename.c_str(), "wb");
-	writeString(fp, "cjr-rsa");
-	writeBigInt(fp, a);
-	writeBigInt(fp, n);
-	fclose(fp);
 }
 
 int genkeyRSA(int nbits, const string &pubname, const string &priname) {
@@ -127,6 +99,10 @@ int genkeyRSA(int nbits, const string &pubname, const string &priname) {
 	} while (r % e == 0);
 	n = p * q;
 
+	trace(p);
+	trace(q);
+	trace(r);
+
 	mpz_class t;
 	assert(1 == ex_gcd(e, r, d, t));
 
@@ -134,8 +110,8 @@ int genkeyRSA(int nbits, const string &pubname, const string &priname) {
 	trace(e, d, n, r);
 	assert(d * e % r == 1);
 
-	writeFile(pubname, e, n);
-	writeFile(priname, d, n);
+	RSA.writeFile(pubname, e, n);
+	RSA.writeFile(priname, d, n);
 
 	return 0;
 }
@@ -163,10 +139,12 @@ static void test() {
 	assert(millerRabin(genPrimeBits(64)));
 	assert(millerRabin(genStrongPrimeBits(64)));
 
-	genkeyRSA(128, "id_rsa.pub", "id_rsa");
+	genkeyRSA(128, PUBFILE, PRIFILE);
 }
 
 int main() {
+	srand(unsigned(time(0)) + size_t(main));
+	randSeedInit();
 	test();
 	return 0;
 }

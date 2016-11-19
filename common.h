@@ -34,6 +34,15 @@ inline void __disp(const char *name, u64 x, int b = 8) {
 	puts("\n");
 }
 
+#define dispstr(...) __dispstr(#__VA_ARGS__, __VA_ARGS__)
+inline void __dispstr(const char *name, const string &str) {
+	printf("%s: ", name);
+	for (const auto &c : str) {
+		printf("%.2x ", (u8)c);
+	}
+	puts("\n");
+}
+
 #define trace(...) __f(#__VA_ARGS__, __VA_ARGS__)
 inline const char *nextok(const char *__restrict s) {
 	const char *e = s + strlen(s);
@@ -59,5 +68,6 @@ void __f(const char *names, Arg1 &&arg1, Args &&... args) {
 #else
 #define trace(...)
 #define disp(...)
+#define dispstr(...)
 #endif // DEBUG
 
