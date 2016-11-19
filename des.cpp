@@ -64,7 +64,7 @@ u64 randomDESKey()
 		srand(unsigned(time(0)) + (size_t)&vis);
 		vis = true;
 	}
-	return ((u64)rand() << 31) + rand();
+	return (u64)rand() << 32 | rand();
 }
 
 /*

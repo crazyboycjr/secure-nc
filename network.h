@@ -8,7 +8,16 @@
 
 using namespace std;
 
-class TCPServer {
+class TCPConn {
+public:
+	TCPConn() {}
+	virtual void send(const string &msg) = 0;
+	virtual string recv() = 0;
+protected:
+	int sockfd;
+};
+
+class TCPServer : TCPConn {
 public:
 	TCPServer() {}
 	TCPServer(const string &addr, const string &port) { init(addr, port); }
@@ -19,10 +28,10 @@ public:
 private:
 	int initserver(int type, const struct sockaddr *addr,
 			socklen_t alen, int qlen);
-	int sockfd, clfd;
+	int clfd;
 };
 
-class TCPClient {
+class TCPClient : TCPConn {
 public:
 	TCPClient() {}
 	TCPClient(const string &addr, const string &port) { connect(addr, port); }
@@ -30,7 +39,6 @@ public:
 	void send(const string &msg);
 	string recv();
 private:
-	int sockfd;
 	int connect_retry(int sockfd, const struct sockaddr *addr, socklen_t alen);
 };
 

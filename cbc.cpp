@@ -100,7 +100,6 @@ void decrypt(string ifile, string ofile, u64 key, u64 iv) {
 	fclose(ofp);
 }
 
-
 /*
 int main() {
 	encrypt("/tmp/f", "/tmp/fo", 0x0, 0);

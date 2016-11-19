@@ -68,5 +68,6 @@ void __f(const char *names, Arg1 &&arg1, Args &&... args) {
 #else
 #define trace(...)
 #define disp(...)
+#define dispstr(...)
 #endif // DEBUG
 

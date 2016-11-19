@@ -46,6 +46,12 @@ AC_ARG_ENABLE([debug], AS_HELP_STRING([--enable-debug],
 # DES Number of Rounds
 AC_DEFINE([NR], [16], [DES Number of Rounds])
 
+# RSA
+AC_DEFINE([NBITS], [128], [Bits of RSA n])
+AC_DEFINE([PUBFILE], ["id_rsa.pub"], [Default RSA pub-key file])
+AC_DEFINE([PRIFILE], ["id_rsa"], [Default RSA pri-key file])
+AC_DEFINE([PEERPUB], ["peer.pub"], [Default RSA pub-key file of peer])
+
 AC_CONFIG_FILES([Makefile])
 
 AC_OUTPUT
