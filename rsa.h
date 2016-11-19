@@ -12,8 +12,8 @@ public:
 	string readFile2Str(const string &pathname);
 	void saveFile(const string &pathname, const string &msg);
 	int readFile(const string &pathname, mpz_class &a, mpz_class &n);
-	int readPub(const string &pathname = "id_rsa.pub");
-	int readPri(const string &pathname = "id_rsa");
+	int readPub(const string &pathname = PUBFILE);
+	int readPri(const string &pathname = PRIFILE);
 	void writeFile(const string &filename, const mpz_class &a, const mpz_class &n);
 	string rsaEncrypt(const string &text);
 	string rsaDecrypt(const string &text);

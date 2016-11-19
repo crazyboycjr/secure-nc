@@ -139,7 +139,7 @@ static void test() {
 	assert(millerRabin(genPrimeBits(64)));
 	assert(millerRabin(genStrongPrimeBits(64)));
 
-	genkeyRSA(128, "id_rsa.pub", "id_rsa");
+	genkeyRSA(128, PUBFILE, PRIFILE);
 }
 
 int main() {

@@ -7,17 +7,55 @@
 
 extern class RSA RSA;
 
+#define BUFLEN 1024
+
+string encryptStr(const string &text, u64 key)
+{
+	/* tmpfs could get a faster speed */
+	const string ifile = "/tmp/fi";
+	const string ofile = "/tmp/fo";
+	RSA.saveFile(ifile, text);
+
+	u64 iv = (u64)rand() << 32 | rand();
+	encrypt(ifile, ofile, key, iv);
+	return RSA.readFile2Str(ofile);
+}
+
+string decryptStr(const string &text, u64 key)
+{
+	/* tmpfs could get a faster speed */
+	const string ifile = "/tmp/fi";
+	const string ofile = "/tmp/fo";
+	RSA.saveFile(ifile, text);
+
+	u64 iv;
+	decrypt(ifile, ofile, key, iv);
+	return RSA.readFile2Str(ofile);
+}
+
+string readMsg()
+{
+	string ret;
+	char buf[BUFLEN];
+	while (fgets(buf, BUFLEN, stdin)) {
+		ret += buf;
+		if (buf[strlen(buf) - 1] == '\n')
+			break;
+	}
+	return ret;
+}
+
 void serverMainloop(TCPServer &server)
 {
 	server.accept();
 	/* xchg public key */
 	string msg = server.recv();
-	RSA.saveFile("peer.pub", msg);
-	RSA.readPub("peer.pub");
-	msg = RSA.readFile2Str("id_rsa.pub");
+	RSA.saveFile(PEERPUB, msg);
+	RSA.readPub(PEERPUB);
+	msg = RSA.readFile2Str(PUBFILE);
 	server.send(msg);
 
-	RSA.readPri("id_rsa");
+	RSA.readPri(PRIFILE);
 
 	/* recv des key */
 	u64 desKey = 0;
@@ -27,11 +65,13 @@ void serverMainloop(TCPServer &server)
 	trace(desKey);
 
 	for (;;) {
-		getline(cin ,msg);
-		server.send(RSA.rsaEncrypt(msg));
+		msg = readMsg();
+		//server.send(RSA.rsaEncrypt(msg));
+		server.send(encryptStr(msg, desKey));
 		msg = server.recv();
 		dispstr(msg);
-		cout << RSA.rsaDecrypt(msg);
+		//cout << RSA.rsaDecrypt(msg);
+		cout << decryptStr(msg, desKey);
 		cout.flush();
 	}
 }
@@ -40,13 +80,13 @@ void clientMainloop(TCPClient &client)
 {
 	/* xchg public key*/
 	string msg;
-	msg = RSA.readFile2Str("id_rsa.pub");
+	msg = RSA.readFile2Str(PUBFILE);
 	client.send(msg);
 	msg = client.recv();
-	RSA.saveFile("peer.pub", msg);
-	RSA.readPub("peer.pub");
+	RSA.saveFile(PEERPUB, msg);
+	RSA.readPub(PEERPUB);
 
-	RSA.readPri("id_rsa");
+	RSA.readPri(PRIFILE);
 
 	/* send des key */
 	u64 desKey = randomDESKey();
@@ -59,10 +99,12 @@ void clientMainloop(TCPClient &client)
 	for (;;) {
 		msg = client.recv();
 		dispstr(msg);
-		cout << RSA.rsaDecrypt(msg);
+		//cout << RSA.rsaDecrypt(msg);
+		cout << decryptStr(msg, desKey);
 		cout.flush();
-		getline(cin, msg);
-		client.send(RSA.rsaEncrypt(msg));
+		msg = readMsg();
+		//client.send(RSA.rsaEncrypt(msg));
+		client.send(encryptStr(msg, desKey));
 	}
 }
 
