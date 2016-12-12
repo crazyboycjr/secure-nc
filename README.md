@@ -1,5 +1,5 @@
 # secure-nc
-simple netcat base on DES which encrypt its secret with RSA......
+Simple netcat based on DES which encrypt its secret key with RSA......
 
 ## Dependency
 - libgmp
